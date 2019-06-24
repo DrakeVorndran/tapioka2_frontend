@@ -1,36 +1,40 @@
 import React, { Component } from 'react'
+import { Redirect } from 'react-router-dom'
+
 
 class NewPost extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      content: ''
+      redirect: false,
+      content: '',
+      id: '',
     }
   }
 
   submit() {
-    const body = {content: 'Bob'}
+    const body = {content: this.state.content}
     fetch('http://localhost:4000/posts/new', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/JSON',
-      },
-      body: JSON.stringify(body),
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
     })
-    .then(id => {
-      console.log(id)
-    })
-    .catch(err => {
-      console.log(err)
-    })
+      .then(res => res.json().then(data => data))
+      .then(res => {
+        this.setState({id: res.id, redirect: true})
+      })
+      .catch(err => {
+        console.log(err)
+      })
   }
 
   render() {
-    const { content } = this.state
-    return(
+    const { content, redirect, id } = this.state
+    return (
       <div>
-        <input type='text' value={content} onChange={e => this.setState({content: e.target.value})} />
+        {redirect && <Redirect to={id}/>}
+        <input type='text' value={content} onChange={e => this.setState({ content: e.target.value })} />
         <button onClick={e => this.submit()} >submit</button>
       </div>
     )
